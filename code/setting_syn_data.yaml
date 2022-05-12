@@ -1,0 +1,15 @@
+N: 500
+K: 3
+prng: 10
+avg_degree: 20.
+rho_anomaly: 0.1
+pi : 0.8
+structure: "assortative"
+gamma : 0.01
+corr : 1.
+over : 0
+L1 : True
+verbose: 1
+folder: '../data/input/'
+output_parameters: True
+output_adj: True

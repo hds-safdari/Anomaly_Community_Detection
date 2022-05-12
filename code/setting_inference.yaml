@@ -1,0 +1,10 @@
+undirected : False
+assortative : True
+err : 0.1
+tolerance : 0.1
+verbose: 1
+N_real : 10
+max_iter : 500
+end_file : '.dat'
+out_inference: False
+# folder : '../data/output/test/'
