@@ -26,7 +26,7 @@ class AnomalyDetection:
     def __init__(self, N=100, L=1, K=5, undirected=False, initialization=1, ag=1.,bg=5.,  rseed=10, inf=1e10, err_max=1e-8, err=0.01,
                  N_real=1, tolerance=0.1, decision=2, max_iter=500, out_inference=False,
                  out_folder='../data/output/', end_file='.dat', assortative=False, pibr0 = None, mupr0= None,
-                 in_parameters = '../data/input/theta_111',
+                 in_parameters = '../data/input/theta_data',
                  fix_communities=False,fix_w=False,fix_pibr=False, fix_mupr=False,plot_loglik=False,
                  constrained=False, verbose=False, flag_anomaly = True):
         self.N = N  # number of nodes

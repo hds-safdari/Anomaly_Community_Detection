@@ -22,7 +22,7 @@ def main():
     p = ArgumentParser()
     p.add_argument('-K', '--K', type=int, default=2)  # number of communities
     p.add_argument('-A', '--adj', type=str, default='dutch2.dat')  # name of the network
-    p.add_argument('-l', '--label', type=str, default='111')  # name of the network
+    p.add_argument('-l', '--label', type=str, default='data')  # name of the network
     p.add_argument('-f', '--in_folder', type=str, default='../data/input/')  # path of the input network
     p.add_argument('-o', '--out_folder', type=str, default='../data/output/5-fold_cv/')  # path to store outputs
     p.add_argument('-E', '--flag_anomaly', type=int, default=1)  # if 1: then use model with anomaly
