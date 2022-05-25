@@ -22,9 +22,9 @@ def main():
     p = ArgumentParser()
     p.add_argument('-K', '--K', type=int, default=2)  # number of communities
     p.add_argument('-A', '--adj', type=str, default='dutch2.dat')  # name of the network
-    p.add_argument('-l', '--label', type=str, default='500_3_20.0_1.0_False_1')  # name of the network
-    p.add_argument('-f', '--in_folder', type=str, default='../data/input/synthetic/edge_anomalies/')  # path of the input network
-    p.add_argument('-o', '--out_folder', type=str, default='../data/output/5-fold_cv/synthetic/edge_anomalies/')  # path to store outputs
+    p.add_argument('-l', '--label', type=str, default='u')  # name of the network
+    p.add_argument('-f', '--in_folder', type=str, default='../data/input/')  # path of the input network
+    p.add_argument('-o', '--out_folder', type=str, default='../data/output/5-fold_cv/')  # path to store outputs
     p.add_argument('-E', '--flag_anomaly', type=int, default=1)  # if 1: then use model with anomaly
     p.add_argument('-e', '--ego', type=str, default='source')  # name of the source of the edge
     p.add_argument('-t', '--alter', type=str, default='target')  # name of the target of the edge 

@@ -23,13 +23,12 @@ import time_glob as gl
 EPS = 1e-12
 
 class AnomalyDetection:
-    def __init__(self, N=100, L=1, K=5, undirected=False, initialization=0, ag=1.,bg=5.,  rseed=10, inf=1e10, err_max=1e-8, err=0.01,
+    def __init__(self, N=100, L=1, K=5, undirected=False, initialization=1, ag=1.,bg=5.,  rseed=10, inf=1e10, err_max=1e-8, err=0.01,
                  N_real=1, tolerance=0.1, decision=2, max_iter=500, out_inference=False,
                  out_folder='../data/output/', end_file='.dat', assortative=False, pibr0 = None, mupr0= None,
-                 in_parameters = '../data/input/synthetic/theta_500_3_20.0_0.0_False_0',
+                 in_parameters = '../data/input/theta_u',
                  fix_communities=False,fix_w=False,fix_pibr=False, fix_mupr=False,plot_loglik=False,
-                 constrained=False, verbose=False, file_u='../data/input/u.dat', file_v='../data/input/v.dat',
-                 file_w='../data/input/w.dat', flag_anomaly = True):
+                 constrained=False, verbose=False, flag_anomaly = True):
         self.N = N  # number of nodes
         self.L = L  # number of layers
         self.K = K  # number of communities
@@ -48,20 +47,17 @@ class AnomalyDetection:
         self.assortative = assortative  # if True, the network is assortative
         self.fix_pibr = fix_pibr  # if True, the pibr parameter is fixed
         self.fix_mupr = fix_mupr  # if True, the mupr parameter is fixed
-        self.fix_communities = fix_communities
-        self.fix_w = fix_w
+        self.fix_communities = fix_communities  # if True, the community membership parametera are fixed
+        self.fix_w = fix_w  # if True, the affinity matrix is fixed
         self.constrained = constrained  # if True, use the configuration with constraints on the updates
-        self.verbose = verbose  # flag to print details
-        self.input_u = file_u  # path of the input file u (when initialization=1)
-        self.input_v = file_v  # path of the input file v (when initialization=1)
-        self.input_w = file_w  # path of the input file w (when initialization=1) 
+        self.verbose = verbose  # flag to print details 
         self.ag = ag # shape of gamma prior
         self.bg = bg # rate of gamma prior
-        self.pibr = pibr0  # initial value for the mu in
-        self.mupr = mupr0  # initial value for the pi in Bernolie dist
+        self.pibr = pibr0  # initial value for the mu 
+        self.mupr = mupr0  # initial value for the pi  
         self.plot_loglik = plot_loglik
         self.flag_anomaly = flag_anomaly
-        self.in_parameters = in_parameters
+        self.in_parameters = in_parameters  # path of the input community membership (when initialization=1)
 
         if initialization not in {0, 1}:  # indicator for choosing how to initialize u, v and w
             raise ValueError('The initialization parameter can be either 0 or 1. It is used as an indicator to '
@@ -78,9 +74,9 @@ class AnomalyDetection:
                 raise ValueError('The prior mupr0 has to be in [0, 1]!')
 
         if self.initialization == 1:
-            dfU = pd.read_csv(self.input_u, sep='\s+',header=None)
-            self.N, self.K = dfU.shape
-            print(self.N,self.K)
+            theta = np.load(self.in_parameters + '.npz',allow_pickle=True) 
+            self.N, self.K = theta['u'].shape
+            print('self.N,self.K:', self.N,self.K)
 
         # values of the parameters used during the update
         self.u = np.zeros((self.N, self.K), dtype=float)  # out-going membership
@@ -95,8 +91,8 @@ class AnomalyDetection:
         # final values after convergence --> the ones that maximize the log-likelihood
         self.u_f = np.zeros((self.N, self.K), dtype=float)  # Out-going membership
         self.v_f = np.zeros((self.N, self.K), dtype=float)  # In-going membership 
-        self.pibr_f = self.pibr  #
-        self.mupr_f = self.mupr #
+        self.pibr_f = self.pibr  # pi: anomaly parameter
+        self.mupr_f = self.mupr  # mu: prior
 
         # values of the affinity tensor: in this case w is always ASSORTATIVE 
         if self.assortative:  # purely diagonal matrix
@@ -155,8 +151,7 @@ class AnomalyDetection:
 
         maxL = -self.inf  # initialization of the maximum  log-likelihood 
 
-        # if data_T is None:
-        E = np.sum(data)  # weighted sum of edges (needed in the denominator of eta)
+        # if data_T is None: 
         data_T = np.einsum('aij->aji', data)
         data_T_vals = get_item_array_from_subs(data_T, data.nonzero())
         # pre-processing of the data to handle the sparsity
@@ -197,7 +192,7 @@ class AnomalyDetection:
             while not convergence and it < self.max_iter:
                 # main EM update: updates memberships and calculates max difference new vs old
 
-                delta_u, delta_v, delta_w, delta_pibr, delta_mupr = self._update_em(data, data_T_vals, subs_nz, denominator=E,mask=mask,subs_nz_mask=subs_nz_mask)
+                delta_u, delta_v, delta_w, delta_pibr, delta_mupr = self._update_em(data, data_T_vals, subs_nz,mask=mask,subs_nz_mask=subs_nz_mask)
                 it, loglik, coincide, convergence = self._check_for_convergence(data, it, loglik, coincide, convergence,
                                                                                 data_T=data_T, mask=mask,subs_nz_mask=subs_nz_mask)
                 loglik_values.append(loglik)
@@ -441,6 +436,8 @@ class AnomalyDetection:
                 In-coming membership matrix.
             w : ndarray
                 Affinity tensor.
+            data_T_vals : ndarray
+                Array with values of entries A[j, i] given non-zero entry (i, j).
 
             Returns
             -------
@@ -516,7 +513,7 @@ class AnomalyDetection:
         return nz_recon_I
     
     @gl.timeit('em')
-    def _update_em(self, data, data_T_vals, subs_nz, denominator=None,mask=None,subs_nz_mask=None):
+    def _update_em(self, data, data_T_vals, subs_nz,mask=None,subs_nz_mask=None):
         """
             Update parameters via EM procedure.
 
@@ -527,9 +524,7 @@ class AnomalyDetection:
             data_T_vals : ndarray
                           Array with values of entries A[j, i] given non-zero entry (i, j).
             subs_nz : tuple
-                      Indices of elements of data that are non-zero.
-            denominator : float
-                          Denominator used in the update of the eta parameter.
+                      Indices of elements of data that are non-zero. 
 
             Returns
             -------
@@ -542,7 +537,7 @@ class AnomalyDetection:
             d_pibr : float
                     Maximum distance between the old and the new anoamly parameter pi.
             d_mupr : float
-                    Maximum distance between the old and the new prior eta.
+                    Maximum distance between the old and the new prior mu.
         """
         
         if self.fix_communities == False: 
@@ -569,14 +564,14 @@ class AnomalyDetection:
             d_w = 0
 
         if self.fix_pibr == False: 
-            d_pibr = self._update_pibr(data, data_T_vals, subs_nz, denominator=denominator,mask=mask,subs_nz_mask=subs_nz_mask) 
+            d_pibr = self._update_pibr(data, data_T_vals, subs_nz,mask=mask,subs_nz_mask=subs_nz_mask) 
             self._update_cache(data, data_T_vals, subs_nz)
 
         else:
             d_pibr = 0.
         
         if self.fix_mupr == False: 
-            d_mupr = self._update_mupr(data, data_T_vals, subs_nz, denominator=denominator,mask=mask,subs_nz_mask=subs_nz_mask) 
+            d_mupr = self._update_mupr(data, data_T_vals, subs_nz,mask=mask,subs_nz_mask=subs_nz_mask) 
             self._update_cache(data, data_T_vals, subs_nz)
         else:
             d_mupr = 0.
@@ -584,16 +579,14 @@ class AnomalyDetection:
         return d_u, d_v, d_w, d_pibr, d_mupr
 
     @gl.timeit('pibr')
-    def _update_pibr(self, data, data_T_vals, subs_nz, denominator=None,mask=None,subs_nz_mask=None):
+    def _update_pibr(self, data, data_T_vals, subs_nz,mask=None,subs_nz_mask=None):
         """
             Update  anomaly parameter pi.
 
             Parameters
             ----------
             data : sptensor/dtensor
-                   Graph adjacency tensor. 
-            denominator : float
-                          Denominator used in the update of the eta parameter.
+                   Graph adjacency tensor.  
 
             Returns
             -------
@@ -615,21 +608,19 @@ class AnomalyDetection:
         return dist_pibr
 
     @gl.timeit('mupr')
-    def _update_mupr(self, data, data_T_vals, subs_nz, denominator=None,mask=None,subs_nz_mask=None):
+    def _update_mupr(self, data, data_T_vals, subs_nz,mask=None,subs_nz_mask=None):
         """
             Update prior eta.
 
             Parameters
             ----------
             data : sptensor/dtensor
-                   Graph adjacency tensor. 
-            denominator : float
-                          Denominator used in the update of the eta parameter.
+                   Graph adjacency tensor.  
 
             Returns
             -------
             dist_mupr : float
-                       Maximum distance between the old and the new rprior eta.
+                       Maximum distance between the old and the new rprior mu.
         """
         if mask is None:
             self.mupr = self.Qij_dense.sum() / ( self.N * (self.N-1) )

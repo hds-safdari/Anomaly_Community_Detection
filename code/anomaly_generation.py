@@ -174,7 +174,10 @@ class SyntNetAnomaly(object):
         np.fill_diagonal(A, 0)
         G0 = nx.to_networkx_graph(A, create_using=nx.DiGraph)
 
-        A[self.z.nonzero()] = prng.binomial(1,self.pi,self.z.count_nonzero())
+        # binary anomaly
+        # A[self.z.nonzero()] = prng.binomial(1,self.pi,self.z.count_nonzero())
+        # weighted anomaly
+        A[self.z.nonzero()] = prng.poisson(self.pi * self.z.count_nonzero())
         A[A>0] = 1 # binarize the adjacency matrix
         np.fill_diagonal(A, 0)
 
@@ -289,8 +292,7 @@ class SyntNetAnomaly(object):
             ----------
             nodes : list
                     List of nodes IDs.
-        """
-        # TODO: check if something should be added to the label
+        """ 
         output_parameters = self.folder + 'theta_' + self.label + '_' + str(self.prng)
         # print(self.z.count_nonzero())
         if self.flag_node_anomalies == True:
