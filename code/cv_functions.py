@@ -165,7 +165,7 @@ def calculate_AUC(pred, data0, mask=None):
 
     return metrics.auc(fpr, tpr)
 
-def calculate_f1_score(pred, data0, mask=None,threshold=0.5):
+def calculate_f1_score(pred, data0, mask=None,threshold=0.1):
     
     Z_pred = np.copy(pred[0])
     Z_pred[Z_pred<threshold] = 0

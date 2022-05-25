@@ -23,7 +23,7 @@ import time_glob as gl
 EPS = 1e-12
 
 class AnomalyDetection:
-    def __init__(self, N=100, L=1, K=5, undirected=False, initialization=1, ag=1.,bg=5.,  rseed=10, inf=1e10, err_max=1e-8, err=0.01,
+    def __init__(self, N=100, L=1, K=5, undirected=False, initialization=1, ag=1.5,bg=10.,  rseed=10, inf=1e10, err_max=1e-8, err=0.01,
                  N_real=1, tolerance=0.1, decision=2, max_iter=500, out_inference=False,
                  out_folder='../data/output/', end_file='.dat', assortative=False, pibr0 = None, mupr0= None,
                  in_parameters = '../data/input/theta_data',
