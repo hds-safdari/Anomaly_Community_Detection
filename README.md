@@ -8,7 +8,7 @@ This is a  probabilistic generative model and efficient algorithm to model anoma
 
 If you use this code please cite [1].   
 
-The paper can be found [here] <span style="color:red"> arxiv link </span> (_preprint_).  
+The paper can be found [here] <span style="color:red"> arxiv link <https://arxiv.org/abs/2205.06012> (_preprint_).  
 
 Copyright (c) 2020 [Hadiseh Safdari](https://github.com/hds-safdari) and [Caterina De Bacco](http://cdebacco.com).
 
