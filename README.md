@@ -74,4 +74,4 @@ print(theta['u'])
 
 _theta_ contains the two NxK membership matrices **u** *('u')* and **v** *('v')*, the 1xKxK (or 1xK if assortative=True) affinity tensor **w** *('w')*, the anomaly parameter **$\pi$** *('pi')*, the prior **$\mu$** *('mu')*,, the total number of iterations *('max_it')*, the value of the maximum pseudo log-likelihood *('maxPSL')* and the nodes of the network *('nodes')*.  
 
-For an example `jupyter notebook` importing the data, see `code/analyse_results.ipynb`.
+For an example `jupyter notebook` importing the data, see `code/AnomalyDetection_Inf_debug.ipynb`.

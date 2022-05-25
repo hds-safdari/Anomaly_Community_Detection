@@ -1,9 +1,6 @@
 """
-    Main function to implement cross-validation given a number of communities.
-
-    - Hold-out part of the dataset (pairs of edges labeled by unordered pairs (i,j));
-    - Infer parameters on the training set;
-    - Calculate performance measures in the test set (AUC).
+    Performing the inference in the given single-layer directed network.
+    Implementation of CRep algorithm.
 """
 
 import csv
