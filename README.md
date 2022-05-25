@@ -35,7 +35,7 @@ cd code
 python main.py
 ```
 
-It will use the sample network contained in `./data/input`. The adjacency matrix *syn_data.dat* represents a directed, weighted network with **N=500** nodes, **K=3** equal-size unmixed communities with an **assortative** structure **rho_a =0.3**, and **$ \pi$ = 0.2 **.. 
+It will use the sample network contained in `./data/input`. The adjacency matrix *syn_data.dat* represents a directed, weighted network with **N=500** nodes, **K=3** equal-size unmixed communities with an **assortative** structure **\rho_a =0.3**, and **$ \pi$ = 0.2 **.. 
 
 ### Parameters
 
