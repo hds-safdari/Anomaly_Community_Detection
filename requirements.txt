@@ -1,0 +1,10 @@
+numpy
+pandas
+sklearn
+scikit-tensor-py3
+scipy
+networkx
+argparse
+termcolor
+pyyaml
+pytest
