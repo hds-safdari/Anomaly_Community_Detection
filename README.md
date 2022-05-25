@@ -23,9 +23,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - `data/input` : Contains an example of a network having an intrinsic community structure and anomalous edges, and some example files to initialize the latent variables. They are synthetic data.
 - `data/output` : Contains some results to test the code.
 
-## Requirements
-The project has been developed using Python 3.8 with the packages contained in *requirements.txt*. It is possible to install the dependencies using pip:
-`pip install -r requirements.txt`
 
 ## Usage
 To test the program on the given example file, type:   
