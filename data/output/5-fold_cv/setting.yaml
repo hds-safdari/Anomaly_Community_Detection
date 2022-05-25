@@ -1,0 +1,11 @@
+N_real: 5
+assortative: true
+end_file: 111_4K3
+err: 0.1
+flag_anomaly: true
+max_iter: 500
+out_folder: ../data/output/5-fold_cv/
+out_inference: false
+tolerance: 0.1
+undirected: false
+verbose: 1

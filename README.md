@@ -27,32 +27,25 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 The project has been developed using Python 3.8 with the packages contained in *requirements.txt*. It is possible to install the dependencies using pip:
 `pip install -r requirements.txt`
 
-## Test
-You can run tests to reproduce results contained in `data/output` by running (inside `code` directory):  
-
-```bash
-python -m unittest test.py   
-python -m unittest test_cv.py
-```
-
 ## Usage
-To test the program on the given example file, type:  
+To test the program on the given example file, type:   
 
 ```bash
 cd code
 python main.py
 ```
 
-It will use the sample network contained in `./data/input`. The adjacency matrix *syn111.dat* represents a directed, weighted network with **N=500** nodes, **K=3** equal-size unmixed communities with an **assortative** structure **rho_a =0.3**, and **$ \pi$ = 0.2 **.. 
+It will use the sample network contained in `./data/input`. The adjacency matrix *syn_data.dat* represents a directed, weighted network with **N=500** nodes, **K=3** equal-size unmixed communities with an **assortative** structure **rho_a =0.3**, and **$ \pi$ = 0.2 **.. 
 
 ### Parameters
-- **-a** : Model configuration to use (CRep, CRepnc, CRep0), *(default='CRep')*.
+
 - **-K** : Number of communities, *(default=3)*.
-- **-A** : Input file name of the adjacency matrix, *(default='syn111.dat')*.
+- **-A** : Input file name of the adjacency matrix, *(default='syn_data.dat')*.   
 - **-f** : Path of the input folder, *(default='../data/input/')*.
-- **-e** : Name of the source of the edge, *(default='source')*.
-- **-t** : Name of the target of the edge, *(default='target')*.
-- **-d** : Flag to force a dense transformation of the adjacency matrix, *(default=False)*.
+- **-o** : Path of the output folder, *(default='../data/output/')*.
+- **-E** : Anomaly flag, *(default=1)*.
+- **-e**: name of the source of the edge,*(default='source').
+- **-t** : Name of the target of the edge, *(default='target')*. 
 
 You can find a list by running (inside `code` directory): 
 
@@ -71,19 +64,17 @@ where the first and second columns are the _source_ and _target_ nodes of the ed
 Other configuration settings can be set by modifying the *setting\_\*_.yaml* files: 
 
 - *setting\_syn_data.yaml* : contains the setting to generate synthetic data
-- *setting\_CRep.yaml* : contains the setting to run the algorithm CRep
-- *setting\_CRepnc.yaml* : contains the setting to run the algorithm CRep without normalization constraints on the membership parameters
-- *setting\_CRep0.yaml* : contains the setting to run the algorithm CRep without considering  the reciprocity effect
+- *setting\_inference.yaml* : contains the setting to run the algorithm ACD
 
 ## Output
 The algorithm returns a compressed file inside the `data/output` folder. To load and print the out-going membership matrix:
 
 ```bash
-import numpy as np 
-theta = np.load('theta_Crep.npz')
+import numpy as np  
+theta = np.load('theta_data.npz')
 print(theta['u'])
 ```
 
-_theta_ contains the two NxK membership matrices **u** *('u')* and **v** *('v')*, the 1xKxK (or 1xK if assortative=True) affinity tensor **w** *('w')*, the reciprocity coefficient **$\eta$** *('eta')*, the total number of iterations *('max_it')*, the value of the maximum pseudo log-likelihood *('maxPSL')* and the nodes of the network *('nodes')*.  
+_theta_ contains the two NxK membership matrices **u** *('u')* and **v** *('v')*, the 1xKxK (or 1xK if assortative=True) affinity tensor **w** *('w')*, the anomaly parameter **$\pi$** *('pi')*, the prior **$\mu$** *('mu')*,, the total number of iterations *('max_it')*, the value of the maximum pseudo log-likelihood *('maxPSL')* and the nodes of the network *('nodes')*.  
 
 For an example `jupyter notebook` importing the data, see `code/analyse_results.ipynb`.
