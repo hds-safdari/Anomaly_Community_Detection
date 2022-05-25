@@ -41,7 +41,7 @@ It will use the sample network contained in `./data/input`. The adjacency matrix
 - **-f** : Path of the input folder, *(default='../data/input/')*.
 - **-o** : Path of the output folder, *(default='../data/output/')*.
 - **-E** : Anomaly flag, *(default=1)*.
-- **-e**: name of the source of the edge,*(default='source').
+- **-e**: name of the source of the edge,*(default='source')*.
 - **-t** : Name of the target of the edge, *(default='target')*. 
 
 You can find a list by running (inside `code` directory): 
