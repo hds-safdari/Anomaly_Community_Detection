@@ -122,10 +122,10 @@ class SyntNetAnomaly(object):
 
 	def anomaly_network_PB(self, parameters = None):
 		"""
-			Generate a directed, possibly weighted network by using the anomaly model Poisson-Bernoulli
+			Generate a directed, possibly weighted network by using the anomaly model Poisson-Poisson
 			Steps:
 				1. Generate or load the latent variables Z_ij.
-				2. Extract A_ij entries (network edges) from a Poisson distribution if Z_ij=0; from a Brenoulli(mu) id Z_ij=0
+				2. Extract A_ij entries (network edges) from a Poisson (M_ij) distribution if Z_ij=0; from a Poisson (pi) distribution if Z_ij=1
 			INPUT
 			----------
 			parameters : object
@@ -156,15 +156,12 @@ class SyntNetAnomaly(object):
 		# Compute M_ij
 		M = np.einsum('ik,jq->ijkq', self.u, self.v)
 		M = np.einsum('ijkq,kq->ij', M, self.w)
-
-		# M[self.z == 1] = 0
-		# Set c sparsity parameter
-		# c = ( float(self.N * self.avg_degree * 0.5) - self.mu * self.pi ) / ((1-self.mu) * binaryM.sum() )
+ 
+		# Set c sparsity parameter 
 		c = brentq(eq_c, EPS, 20, args = (M, self.N,self.ExpM,self.rho_anomaly,self.mu))
 
 		self.w *= c
-
-		# print(c,(1 - self.mu)*((self.N**2-self.N) - np.sum(np.exp(-c*M))) , self.ExpM * (1-self.rho_anomaly))
+ 
 
 		'''
 		Build network
@@ -173,9 +170,7 @@ class SyntNetAnomaly(object):
 		A[A>0] = 1 # binarize the adjacency matrix
 		np.fill_diagonal(A, 0)
 		G0 = nx.to_networkx_graph(A, create_using=nx.DiGraph)
-
-		# binary anomaly
-		# A[self.z.nonzero()] = prng.binomial(1,self.pi,self.z.count_nonzero())
+ 
 		# weighted anomaly
 		A[self.z.nonzero()] = prng.poisson(self.pi * self.z.count_nonzero())
 		A[A>0] = 1 # binarize the adjacency matrix
@@ -258,9 +253,7 @@ class SyntNetAnomaly(object):
 				Element (k,h) gives the density of edges going from the nodes
 				of group k to nodes of group h.
 		"""
-		# Generate z through binomial distribution
-		# z = prng.binomial(1, self.mu, (self.N, self.N))
-		# z = sparse.coo_matrix(z)
+		# Generate z through binomial distribution 
 		if self.flag_node_anomalies == True:
 			self.sigma = prng.binomial(1,self.rho_node,self.N)
 			z = 1 - np.einsum('i,j->ij',self.sigma,self.sigma)
@@ -269,14 +262,11 @@ class SyntNetAnomaly(object):
 			# if self.mu-1./self.N < 0:
 			if self.mu < 0:
 				density = EPS
-			else:
-				# density = self.mu-1./self.N
+			else: 
 				density = self.mu
 			z = sparse.random(self.N,self.N, density=density, data_rvs=np.ones)
 			upper_z = sparse.triu(z) 
-			z = upper_z + upper_z.T 
-		# z -= sparse.diags(z.diagonal())
-			# z.setdiag(0)
+			z = upper_z + upper_z.T  
 
 		# Generate u, v for overlapping communities
 		u, v = membership_vectors(prng, self.L1, self.eta, self.ag, self.bg, self.K,
@@ -293,8 +283,7 @@ class SyntNetAnomaly(object):
 			nodes : list
 					List of nodes IDs.
 		""" 
-		output_parameters = self.folder + 'theta_' + self.label + '_' + str(self.prng)
-		# print(self.z.count_nonzero())
+		output_parameters = self.folder + 'theta_' + self.label + '_' + str(self.prng) 
 		if self.flag_node_anomalies == True:
 			np.savez_compressed(output_parameters + '.npz', z=self.z.todense(), u=self.u, v=self.v,
 							w=self.w, mu=self.mu, pi=self.pi, nodes=nodes,sigma=self.sigma)
@@ -358,11 +347,7 @@ class SyntNetAnomaly(object):
 			----------
 			cmap : Matplotlib object
 				Colormap used for the plot.
-		"""
-		# assert isinstance(self.z, sparse.csr.csr_matrix)
-		# z_dense = self.z.toarray()
-		# assert isinstance(z_dense, sparse.csr.csr_matrix) == False
-		# Ad = self.z.todense()
+		""" 
 		fig, ax = plt.subplots(figsize=(7, 7))
 		ax.matshow(self.z, cmap = plt.get_cmap(cmap))
 		ax.set_title('Anomaly matrix', fontsize = 15)
