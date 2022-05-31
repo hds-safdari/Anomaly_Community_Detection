@@ -34,7 +34,7 @@ class SyntNetAnomaly(object):
 		if label is not None:
 			self.label = label
 		else:
-			self.label = ('_').join([str(N),str(K),str(avg_degree),str(flt(rho_anomaly,d=2)))])
+			self.label = ('_').join([str(N),str(K),str(avg_degree),str(flt(rho_anomaly,d=2))])
 		# Initialize data folder path
 		self.folder = folder
 		# Set flag for storing the parameters
@@ -241,7 +241,7 @@ class SyntNetAnomaly(object):
 				of group k to nodes of group h.
 		"""
 		# Generate z through binomial distribution  
-		
+
 		if self.mu < 0:
 			density = EPS
 		else: 
