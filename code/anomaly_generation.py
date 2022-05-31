@@ -17,8 +17,7 @@ EPS = 1e-12
 class SyntNetAnomaly(object):
 
 	def __init__(self, m = 1, N = 100, K = 2, prng = 10, avg_degree = 4., rho_anomaly = 0.1,
-				structure = 'assortative', label = None, mu = None, pi = 0.8,
-				flag_node_anomalies = False, rho_node=0.9,
+				structure = 'assortative', label = None, mu = None, pi = 0.8,rho_node=0.9,
 				gamma = 0.5, eta = 0.5, L1=False,ag = 0.6, bg = 1., corr = 0., over = 0.,
 				verbose = 0, folder = '../../data/input', output_parameters = False,
 				output_adj = False, outfile_adj = None):
@@ -35,7 +34,7 @@ class SyntNetAnomaly(object):
 		if label is not None:
 			self.label = label
 		else:
-			self.label = ('_').join([str(N),str(K),str(avg_degree),str(flt(rho_anomaly,d=2)),str(flag_node_anomalies)])
+			self.label = ('_').join([str(N),str(K),str(avg_degree),str(flt(rho_anomaly,d=2)))])
 		# Initialize data folder path
 		self.folder = folder
 		# Set flag for storing the parameters
@@ -48,7 +47,6 @@ class SyntNetAnomaly(object):
 		self.avg_degree = avg_degree
 		self.rho_anomaly = rho_anomaly 
 
-		self.flag_node_anomalies = flag_node_anomalies
 
 		# Set verbosity flag
 		if verbose > 2 and not isinstance(verbose, int):
@@ -69,23 +67,12 @@ class SyntNetAnomaly(object):
 			raise ValueError('The rho anomaly has to be in [0, 1]!')
 		
 		self.ExpM = self.avg_degree * self.N * 0.5
-
-		if self.flag_node_anomalies == True:
-			if rho_node < 0 or rho_node > 1:
-				raise ValueError('The rho node has to be in [0, 1]!')
-			if rho_node == 1: rho_node = 1 - EPS
-			if rho_node == 0: rho_node = EPS
-
-			self.rho_node = rho_node # probability that a node is NOT anomalous
-			self.mu = 1. - self.rho_node**2
-			self.pi = self.rho_anomaly * self.ExpM / (self.mu * (self.N**2-self.N))
-			print(self.pi,self.rho_anomaly,self.mu)
-		else: # anomalies on edges
-			mu = self.rho_anomaly * self.ExpM / (self.pi * (self.N**2-self.N))
-			if mu == 1: mu = 1 - EPS
-			if mu == 0: mu = EPS
-			assert mu > 0. and mu < 1.
-			self.mu = mu
+ 
+		mu = self.rho_anomaly * self.ExpM / ((1-np.exp(self.pi)) * (self.N**2-self.N))
+		if mu == 1: mu = 1 - EPS
+		if mu == 0: mu = EPS
+		assert mu > 0. and mu < 1.
+		self.mu = mu
 
 		
 		### Set MT inputs
@@ -253,20 +240,15 @@ class SyntNetAnomaly(object):
 				Element (k,h) gives the density of edges going from the nodes
 				of group k to nodes of group h.
 		"""
-		# Generate z through binomial distribution 
-		if self.flag_node_anomalies == True:
-			self.sigma = prng.binomial(1,self.rho_node,self.N)
-			z = 1 - np.einsum('i,j->ij',self.sigma,self.sigma)
-			z = sparse.csr_matrix(z)
-		else:
-			# if self.mu-1./self.N < 0:
-			if self.mu < 0:
-				density = EPS
-			else: 
-				density = self.mu
-			z = sparse.random(self.N,self.N, density=density, data_rvs=np.ones)
-			upper_z = sparse.triu(z) 
-			z = upper_z + upper_z.T  
+		# Generate z through binomial distribution  
+		
+		if self.mu < 0:
+			density = EPS
+		else: 
+			density = self.mu
+		z = sparse.random(self.N,self.N, density=density, data_rvs=np.ones)
+		upper_z = sparse.triu(z) 
+		z = upper_z + upper_z.T  
 
 		# Generate u, v for overlapping communities
 		u, v = membership_vectors(prng, self.L1, self.eta, self.ag, self.bg, self.K,
@@ -283,13 +265,9 @@ class SyntNetAnomaly(object):
 			nodes : list
 					List of nodes IDs.
 		""" 
-		output_parameters = self.folder + 'theta_' + self.label + '_' + str(self.prng) 
-		if self.flag_node_anomalies == True:
-			np.savez_compressed(output_parameters + '.npz', z=self.z.todense(), u=self.u, v=self.v,
-							w=self.w, mu=self.mu, pi=self.pi, nodes=nodes,sigma=self.sigma)
-		else:
-			np.savez_compressed(output_parameters + '.npz', z=self.z.todense(), u=self.u, v=self.v,
-							w=self.w, mu=self.mu, pi=self.pi, nodes=nodes)
+		output_parameters = self.folder + 'theta_' + self.label + '_' + str(self.prng)  
+		np.savez_compressed(output_parameters + '.npz', z=self.z.todense(), u=self.u, v=self.v,
+						w=self.w, mu=self.mu, pi=self.pi, nodes=nodes)
 		if self.verbose:
 			print()
 			print(f'Parameters saved in: {output_parameters}.npz')
