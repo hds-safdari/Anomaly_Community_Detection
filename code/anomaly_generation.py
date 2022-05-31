@@ -66,11 +66,10 @@ class SyntNetAnomaly(object):
 		if rho_anomaly < 0 or rho_anomaly > 1:
 			raise ValueError('The rho anomaly has to be in [0, 1]!')
 		
-		self.ExpM = self.avg_degree * self.N * 0.5
- 
-		mu = self.rho_anomaly * self.ExpM / ((1-np.exp(self.pi)) * (self.N**2-self.N))
+		self.ExpM = self.avg_degree * self.N * 0.5 
+		mu = self.rho_anomaly * self.ExpM / ((1-np.exp(-self.pi)) * (self.N**2-self.N))
 		if mu == 1: mu = 1 - EPS
-		if mu == 0: mu = EPS
+		if mu == 0: mu = EPS 
 		assert mu > 0. and mu < 1.
 		self.mu = mu
 
