@@ -980,7 +980,7 @@ class AnomalyDetection:
 
 		if self.flag_anomaly == False:
 			l = (data.vals * np.log(self.lambda0_ija[data.subs]+EPS)).sum() 
-			if mask is not None:
+			if mask is  None:
 				l -= self.lambda0_ija.sum()
 			else:
 				l -= self.lambda0_ija[subs_nz_mask].sum()
