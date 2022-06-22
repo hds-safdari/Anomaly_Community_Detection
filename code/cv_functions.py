@@ -10,44 +10,6 @@ from scipy.stats import poisson
 
 
 
-def PSloglikelihood(B, u, v, w, eta, mask=None):
-	"""
-		Compute the pseudo log-likelihood of the data.
-
-		Parameters
-		----------
-		B : ndarray
-			Graph adjacency tensor.
-		u : ndarray
-			Out-going membership matrix.
-		v : ndarray
-			In-coming membership matrix.
-		w : ndarray
-			Affinity tensor.
-		eta : float
-			  Reciprocity coefficient.
-		mask : ndarray
-			   Mask for selecting the held out set in the adjacency tensor in case of cross-validation.
-
-		Returns
-		-------
-		Pseudo log-likelihood value.
-	"""
-
-	if mask is None:
-		M = _lambda0_full(u, v, w)
-		M += (eta * B[0, :, :].T)[np.newaxis, :, :]
-		logM = np.zeros(M.shape)
-		logM[M > 0] = np.log(M[M > 0])
-		return (B * logM).sum() - M.sum()
-	else:
-		M = _lambda0_full(u, v, w)[mask > 0]
-		M += (eta * B[0, :, :].T)[np.newaxis, :, :][mask > 0]
-		logM = np.zeros(M.shape)
-		logM[M > 0] = np.log(M[M > 0])
-		return (B[mask > 0] * logM).sum() - M.sum()
-
-
 def _lambda0_full(u, v, w):
 	"""
 		Compute the mean lambda0 for all entries.
@@ -107,35 +69,6 @@ def transpose_ij(M):
 def calculate_expectation(U,V,W,Q,pi=1):    
 	lambda0 = _lambda0_full(U,V,W)
 	return (1-Q) * lambda0 + Q * pi
-
-def calculate_conditional_expectation(B, u, v, w, mean=None):
-	"""
-		Compute the conditional expectations, e.g. the parameters of the conditional distribution lambda_{ij}.
-
-		Parameters
-		----------
-		B : ndarray
-			Graph adjacency tensor.
-		u : ndarray
-			Out-going membership matrix.
-		v : ndarray
-			In-coming membership matrix.
-		w : ndarray
-			Affinity tensor.
-		eta : float
-			  Reciprocity coefficient.
-		mean : ndarray
-			   Matrix with mean entries.
-
-		Returns
-		-------
-		Matrix whose elements are lambda_{ij}.
-	"""
-
-	if mean is None:
-		return _lambda0_full(u, v, w)  # conditional expectation (knowing A_ji)
-	else:
-		return _lambda0_full(u, v, w)
 
 
 def calculate_AUC(pred, data0, mask=None):
@@ -288,43 +221,6 @@ def fit_model(B,nodes, N, L, K,mask=None, **conf):
 	uf, vf, wf, pibrf, muprf, maxPSL = mod.fit(data=B,mask=mask, nodes=nodes)
 
 	return uf, vf, wf, pibrf, muprf, maxPSL, mod
-
-
-def calculate_opt_func(B, algo_obj=None, mask=None, assortative=False):
-	"""
-		Compute the optimal value for the pseudo log-likelihood with the inferred parameters.
-
-		Parameters
-		----------
-		B : ndarray
-			Graph adjacency tensor.
-		algo_obj : obj
-				   The CRep object.
-		mask : ndarray
-			   Mask for selecting a subset of the adjacency tensor.
-		assortative : bool
-					  Flag to use an assortative mode.
-
-		Returns
-		-------
-		Maximum pseudo log-likelihood value
-	"""
-
-	B_test = B.copy()
-	if mask is not None:
-		B_test[np.logical_not(mask)] = 0.
-
-	if not assortative:
-		return PSloglikelihood(B, algo_obj.u_f, algo_obj.v_f, algo_obj.w_f, algo_obj.eta_f, mask=mask)
-	else:
-		L = B.shape[0]
-		K = algo_obj.w_f.shape[-1]
-		w = np.zeros((L, K, K))
-		for l in range(L):
-			w1 = np.zeros((K, K))
-			np.fill_diagonal(w1, algo_obj.w_f[l])
-			w[l, :, :] = w1.copy()
-		return PSloglikelihood(B, algo_obj.u_f, algo_obj.v_f, w, algo_obj.eta_f, mask=mask)
 
 def CalculatePermuation(U_infer,U0):  
 	"""
