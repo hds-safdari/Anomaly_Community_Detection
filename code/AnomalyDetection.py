@@ -698,7 +698,7 @@ class AnomalyDetection:
 					 Maximum distance between the old and the new membership matrix v.
 		"""
 
-		self.v = self.ag - 1 + self._update_membership_Q(subs_nz, self.u, self.v, self.w, 2)
+		self.v = self.ag - 1  + self.v_old * self._update_membership_Q(subs_nz, self.u, self.v, self.w, 2)
 
 		if not self.constrained:
 			if self.flag_anomaly == True:
