@@ -1,14 +1,14 @@
 # Anomaly_Community_Detection 
 Python implementation of ACD algorithm described in:
 
-[1] Safdari H. and  De Bacco C. (2022). Anomaly detection and community detection in networks, arXiv:2205.06012.
+[1] Safdari, H., De Bacco, C. Anomaly detection and community detection in networks. J Big Data 9, 122 (2022).
 
  
 This is a  probabilistic generative model and efficient algorithm to model anomalous edges in networks. It assigns latent variables as community memberships to nodes and anomaly parameter to the edges. <br>
 
 If you use this code please cite [1].   
 
-The paper can be found at <span style="color:red"> <https://arxiv.org/abs/2205.06012> (_preprint_).  
+The paper can be found at <span style="color:red"> <https://doi.org/10.1186/s40537-022-00669-1>.  
 
 Copyright (c) 2020 [Hadiseh Safdari](https://github.com/hds-safdari) and [Caterina De Bacco](http://cdebacco.com).
 
